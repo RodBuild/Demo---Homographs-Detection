@@ -182,6 +182,8 @@ bool manualTest()
 
     // Display paths -> for user's convenience
     cout << "\n\n**********************************\n";
+    cout <<     "*            Results             *\n";
+    cout <<     "**********************************\n";
     cout << "> Hacker's Path:\n";
     for (auto x: canon_hacker)
         cout << x << '/';
@@ -197,6 +199,23 @@ bool manualTest()
     // if same size, means nothing new was added -> they are not homographs (BASE DIRECTORY CANNOT BE A SECRET)
     if (ultimate_path.size() == canon_base.size())
         return !homographs;
+
+    // vector<string> ultimate_hacker;    
+    // for (auto it = canon_hacker.begin(); it != canon_hacker.end(); it++) {
+    //     // if (*it != ".") {
+    //     if (*it == "." || *it == "..") {
+    //         // nothing do be done
+    //     }
+    //     else {
+    //         // insert values that are not "." or ".."
+    //         ultimate_hacker.push_back(*it);
+    //     }
+    // }
+    // for (int i = 0; i <ultimate_hacker.size(); i++) {
+    //     if (ultimate_path[i] != ultimate_hacker[i])
+    //         return !homographs;
+    //         // break;
+    // }
 
     /*  NUMBER OF TOKENS = 2 (secret/text.txt)
         C:/users/john/cs453                     -> base path
