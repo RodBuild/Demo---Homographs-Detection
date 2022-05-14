@@ -12,7 +12,7 @@ std::string = "./secret/text.txt";
 std::string = "../../folder1/folder2/secret/text.txt";
 
 /* No Homographs */
-std::string = "./../folder1/secret/text.txt";
+std::string = "./../folder3/secret/text.txt";
 std::string = "/secret/text.txt";
 ```
 
