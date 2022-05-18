@@ -104,6 +104,24 @@ vector<string> canonicalize(const std::string p) {
     return vbase_path;
 }
 
+
+/************************************
+ * Compare paths and output results *
+ ************************************/
+void runHomographFunction(const string path1, const string path2) {
+            vector<string> target_path = canonicalize(path1);
+            vector<string> secret_path = canonicalize(path2);
+
+            if (target_path.empty())
+                cout << "PATH1 empty error";
+            else if (secret_path.empty())
+                cout << "PATH2 empty error";
+            else if (areHomographs(target_path, secret_path))
+                cout << "> The paths are homographs\n";
+            else
+                cout << "> The paths are not homographs\n";  
+}
+
 /************************
  * Display Instructions *
  ************************/
@@ -139,18 +157,8 @@ int main() {
             getline(cin, path1);
             cout << "Second file path: ";
             getline(cin, path2);
-
-            vector<string> target_path = canonicalize(path1);
-            vector<string> secret_path = canonicalize(path2);
-
-            if (target_path.empty())
-                cout << "PATH1 empty error";
-            else if (secret_path.empty())
-                cout << "PATH2 empty error";
-            else if (areHomographs(target_path, secret_path))
-                cout << "> The paths are homographs\n";
-            else
-                cout << "> The paths are not homographs\n";   
+ 
+            runHomographFunction(path1, path2);
         }
         // quit program
         else if (instruction == "3") {
