@@ -19,15 +19,6 @@ const std::string SINGLE_DOT = ".";
 const std::string DOUBLE_DOT = "..";
 const char DRIVES[2] = {'C', 'D'};
 
-/*************************
- * Run example test case *
- *************************/
-void runTestCases()
-{
-    // use manual cases
-    // runTestCases();
-    cout << ":)\n";
-}
 
 /*************************************
  * Determine if paths are homographs *
@@ -165,6 +156,64 @@ void runHomographFunction(const string path1, const string path2)
         cout << "> The paths are homographs\n";
     else
         cout << "> The paths are not homographs\n";
+}
+
+/*************************
+ * Run example test case *
+ *************************/
+void runTestCases()
+{
+    string path1, path2;
+    
+    cout << "# CASE 1: Same directory #" << endl;
+    path1 = "C:user/home/secret/password.txt";
+    path2 = "./pasword.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are homographs\n\n";
+
+    cout << "# CASE 2: Different directory #" << endl;
+    path1 = "C:users/home/secret/password.txt";
+    path2 = "../pasword.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are not homographs\n\n";
+
+    cout << "# CASE 3: Back track to different directory #" << endl;
+    path1 = "C:users/home/private/password.txt";
+    path2 = "./../private/password.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are homographs\n\n";
+
+    cout << "# CASE 4: Different files #" << endl;
+    path1 = "C:users/home/secret/password.txt";
+    path2 = "./username.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are not homographs\n\n";
+
+    cout << "# CASE 5: Non absolute path #" << endl;
+    path1 = "./passwords.txt";
+    path2 = "./../secret/password.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are homographs\n\n";
+
+    cout << "# CASE 6: Non absolute path | different directory #" << endl;
+    path1 = "./passwords.txt";
+    path2 = "./../private/pasword.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are not homographs\n\n";
+
+    cout << "# CASE 7: Invalid Input #" << endl;
+    path1 = "./C:/users/home/secret.password.txt";
+    path2 = "./username.txt";
+    cout << "   path 1: " << path1 << endl;
+    cout << "   path 2: " << path2 << endl;
+    cout << "   > The paths are not homographs\n\n";
+
 }
 
 /************************
