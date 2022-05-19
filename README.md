@@ -8,6 +8,10 @@ _Example (lab05-2.cpp):_
 std::string BASE_PATH = "C:/Users/Git/Main/folder1/folder2";
 
 /* Homographs */
+std::string = "C:/Users/Git/Main/secret.txt";
+std::string = "../../secret.txt";
+
+/* Homographs */
 std::string = "./secret/text.txt";
 std::string = "../../folder1/folder2/secret/text.txt";
 
