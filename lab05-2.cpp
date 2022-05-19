@@ -17,23 +17,28 @@ using std::filesystem::current_path;
 const char SLASH = '/';
 const std::string SINGLE_DOT = ".";
 const std::string DOUBLE_DOT = "..";
-const std::string DRIVES[2] = {"C:", "D:"};
-
+const char DRIVES[2] = {'C', 'D'};
 
 /*************************
  * Run example test case *
  *************************/
-void runTestCases() {
+void runTestCases()
+{
+    // use manual cases
+    // runTestCases();
     cout << ":)\n";
 }
 
 /*************************************
  * Determine if paths are homographs *
  *************************************/
-bool areHomographs(const vector<string> target_path, const vector<string> secret_path) {
+bool areHomographs(const vector<string> target_path, const vector<string> secret_path)
+{
     bool homographs = true;
-    for (int i = 0; i < secret_path.size(); i++) {
-        if (target_path[i] != secret_path[i]) {
+    for (int i = 0; i < secret_path.size(); i++)
+    {
+        if (target_path[i] != secret_path[i])
+        {
             homographs = false;
             break;
         }
@@ -41,91 +46,132 @@ bool areHomographs(const vector<string> target_path, const vector<string> secret
     return homographs;
 }
 
-/****************************************
- * Create a canon token of a given path *
- ****************************************/
-vector<string> canonicalize(const std::string p) {
-    // delete first '/'
-    string path = p;
-    if (path[0] == '/') {
-        path.erase(0,1);
-    }
-
-    vector<string> vgiven_path, vbase_path;
+/***************************************
+ * Function to return user's base path *
+ ***************************************/
+string getBasePath() {
     std::filesystem::path system;
     system = std::filesystem::current_path();
     string base_path{system.u8string()};
-
-    //normalize base path
+    // normalize base path
     for (int i = 0; i < base_path.size(); i++)
-    {
         if (base_path[i] == '\\')
-        {
             base_path[i] = SLASH;
-        }
+    
+    return base_path;
+}
+
+/****************************************
+ * Function to split string into vector *
+ ****************************************/
+vector<string> vectorizeString(const string path)
+{
+    vector<string> vectorString;
+    stringstream ss(path);
+    string value;
+    while (getline(ss, value, SLASH)) {
+        vectorString.push_back(value);
     }
-    //split base path and store in a vector
-    stringstream ss(base_path);
-    string dir;
-    while (getline(ss, dir, SLASH))
-        vgiven_path.push_back(dir);
+    return vectorString;
+}
 
-    //split given path and store in a vector
-    stringstream ss2(path);
-    string dir2;
-    while (getline(ss2, dir2, SLASH))
-        vgiven_path.push_back(dir2);
+/****************************************
+ * Create a canon token of a given path *
+ ****************************************/
+vector<string> canonicalize(const std::string p)
+{
+    string path = p, base_path = getBasePath();
+    vector<string> vbase_path, vgiven_path;
+    
+    /*  Full path is given - starts with C/D drive
+            GOOD: C:/User/Rodri/Test    */
+    if (path[0] == DRIVES[0] || path[0] == DRIVES[1])
+    {
+        vbase_path = vectorizeString(path);
+        // return vbase_path;
 
-    //use given path to navigate base path
-    for (auto it = vgiven_path.begin(); it != vgiven_path.end(); it++) {
-        if (*it == SINGLE_DOT) {
-            //do nothing
-        }
-        else if (*it == DOUBLE_DOT) {
-            vbase_path.pop_back();
-        }
-        else {
-            vbase_path.push_back(*it);
-        }
-
-        //if base path empty at some point -> return the vector to show error
-        if (vbase_path.empty()) {
-            return vbase_path;
-        }
     }
+    /*  Full path is given - invalid cases
+            ERROR:    /C:/User    ./C:/User    ../C:/User    */   
+    else if ((path[0] == '/' && (path[1] == DRIVES[0] || path[1] == DRIVES[1])) 
+          || (path[0] == '.' && path[1] == '/' && (path[2] == DRIVES[0] || path[2] == DRIVES[1]))
+          || (path[0] == '.' && path[1] == '.' && (path[3] == DRIVES[0] || path[3] == DRIVES[1])))
+    {
+        vbase_path.push_back("WRONG_PATH");
+        // return vbase_path;
+    }
+    /*  NOT a Full path - moves around base path
+            GOOD: ../Test/secret.txt  */
+    else {
+        // If there is a '/' at the beginning of the path
+        if (path[0] == '/')
+        {
+            path.erase(0, 1);
+        }   
+        
+        // split string paths into vectors
+        vbase_path = vectorizeString(base_path);
+        vgiven_path = vectorizeString(path);
+            
+        //use given path to navigate base path
+        for (auto it = vgiven_path.begin(); it != vgiven_path.end(); it++)
+        {
+            if (*it == SINGLE_DOT)
+            {
+                // do nothing
+            }
+            else if (*it == DOUBLE_DOT)
+            {
+                vbase_path.pop_back();
+            }
+            else
+            {
+                vbase_path.push_back(*it);
+            }
 
-    /*DEBUG*/
-    // display ultimate path (given path + base path)
+            // if base path empty at some point -> return the vector to show error
+            if (vbase_path.empty())
+            {
+                return vbase_path;
+            }
+        }
+    
+    }
+    /*DEBUG
+        CASE 1: User gave a full path (given path)
+        CASE 2: User is moving around base path (given path + base path) */
     // for (auto x: vbase_path) {
     //     cout << x << "/";
     // }
     // cout << endl;
+    /**/
 
     return vbase_path;
 }
 
-
 /************************************
  * Compare paths and output results *
  ************************************/
-void runHomographFunction(const string path1, const string path2) {
-            vector<string> target_path = canonicalize(path1);
-            vector<string> secret_path = canonicalize(path2);
+void runHomographFunction(const string path1, const string path2)
+{
+    vector<string> target_path = canonicalize(path1);
+    vector<string> secret_path = canonicalize(path2);
 
-            if (target_path.empty())
-                cout << "PATH1 empty error";
-            else if (secret_path.empty())
-                cout << "PATH2 empty error";
-            else if (areHomographs(target_path, secret_path))
-                cout << "> The paths are homographs\n";
-            else
-                cout << "> The paths are not homographs\n";  
+    if (target_path.empty())
+        cout << "PATH1 empty error";
+    else if (secret_path.empty())
+        cout << "PATH2 empty error";
+    else if (areHomographs(target_path, secret_path))
+        cout << "> The paths are homographs\n";
+    else
+        cout << "> The paths are not homographs\n";
 }
 
 /************************
  * Display Instructions *
  ************************/
-void displayMenu() {
+void displayMenu()
+{
     cout << "\n ----------------------------\n";
     cout << "|     Lab 05: Homographs     |\n";
     cout << "|----------------------------|\n";
@@ -135,38 +181,45 @@ void displayMenu() {
     cout << " ----------------------------\n";
 }
 
-int main() {
+int main()
+{
 
     string path1, path2, instruction;
 
     bool in_use = true;
-    while (in_use) {
+    while (in_use)
+    {
         // wait for user's instruction
         displayMenu();
         cout << "> ";
-        getline(cin,instruction);
+        getline(cin, instruction);
         cout << endl;
 
         // run test cases
-        if (instruction == "1") {
+        if (instruction == "1")
+        {
             runTestCases();
         }
         // run manual test
-        else if (instruction == "2") {
+        else if (instruction == "2")
+        {
+            cout << "Your current path: " << getBasePath() << endl;
             cout << "First file path: ";
             getline(cin, path1);
             cout << "Second file path: ";
             getline(cin, path2);
- 
+
             runHomographFunction(path1, path2);
         }
         // quit program
-        else if (instruction == "3") {
+        else if (instruction == "3")
+        {
             cout << "> Have a great day!\n";
             break;
         }
         // invalid command
-        else {
+        else
+        {
             cout << "> ## INVALID COMMAND ##\n";
         }
     }
