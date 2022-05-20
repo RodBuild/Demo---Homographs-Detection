@@ -69,14 +69,14 @@ vector<string> vectorizeString(const string path)
 /****************************************
  * Create a canon token of a given path *
  ****************************************/
-vector<string> canonicalize(const std::string p)
+vector<string> canonicalize(const std::string p, const std::string base_path)
 {
-    string path = p, base_path = getBasePath();
+    string path = p;
     vector<string> vbase_path, vgiven_path;
     
     /*  Full path is given - starts with C/D drive
             GOOD: C:/User/Rodri/Test    */
-    if (path[0] == DRIVES[0] || path[0] == DRIVES[1])
+    if (path.length() > 1 && (path[0] == DRIVES[0] || path[0] == DRIVES[1]) && path[1] == ':')
     {
         vbase_path = vectorizeString(path);
         // return vbase_path;
@@ -84,9 +84,9 @@ vector<string> canonicalize(const std::string p)
     }
     /*  Full path is given - invalid cases
             ERROR:    /C:/User    ./C:/User    ../C:/User    */   
-    else if ((path[0] == '/' && (path[1] == DRIVES[0] || path[1] == DRIVES[1])) 
-          || (path[0] == '.' && path[1] == '/' && (path[2] == DRIVES[0] || path[2] == DRIVES[1]))
-          || (path[0] == '.' && path[1] == '.' && (path[3] == DRIVES[0] || path[3] == DRIVES[1])))
+    else if (path.length() > 3 && ((path[0] == '/' && (path[1] == DRIVES[0] || path[1] == DRIVES[1]) && path[2] == ':') 
+                                || (path[0] == '.' && path[1] == '/' && (path[2] == DRIVES[0] || path[2] == DRIVES[1]) && path[3] == ':')
+                                || (path[0] == '.' && path[1] == '.' && (path[3] == DRIVES[0] || path[3] == DRIVES[1]) && path[3] == ':')))
     {
         vbase_path.push_back("WRONG_PATH");
         // return vbase_path;
@@ -143,10 +143,10 @@ vector<string> canonicalize(const std::string p)
 /************************************
  * Compare paths and output results *
  ************************************/
-void runHomographFunction(const string path1, const string path2)
+void runHomographFunction(const string path1, const string path2, const string base_path = getBasePath())
 {
-    vector<string> target_path = canonicalize(path1);
-    vector<string> secret_path = canonicalize(path2);
+    vector<string> target_path = canonicalize(path1, base_path);
+    vector<string> secret_path = canonicalize(path2, base_path);
 
     if (target_path.empty())
         cout << "PATH1 empty error";
@@ -163,57 +163,65 @@ void runHomographFunction(const string path1, const string path2)
  *************************/
 void runTestCases()
 {
-    string path1, path2;
+    string path1, path2, current_path = "C:users/home/secret";
     
+    cout << "Base path: " << current_path << endl << endl;
+
     cout << "# CASE 1: Same directory #" << endl;
-    path1 = "C:user/home/secret/password.txt";
-    path2 = "./pasword.txt";
+    path1 = "C:users/home/secret/password.txt";
+    path2 = "./password.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are homographs\n\n";
 
     cout << "# CASE 2: Different directory #" << endl;
     path1 = "C:users/home/secret/password.txt";
-    path2 = "../pasword.txt";
+    path2 = "../password.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are not homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are not homographs\n\n";
 
     cout << "# CASE 3: Back track to different directory #" << endl;
-    path1 = "C:users/home/private/password.txt";
-    path2 = "./../private/password.txt";
+    path1 = "C:users/home/secret/password.txt";
+    path2 = "./../secret/password.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are homographs\n\n";
 
     cout << "# CASE 4: Different files #" << endl;
     path1 = "C:users/home/secret/password.txt";
     path2 = "./username.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are not homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are not homographs\n\n";
 
     cout << "# CASE 5: Non absolute path #" << endl;
-    path1 = "./passwords.txt";
+    path1 = "./password.txt";
     path2 = "./../secret/password.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are homographs\n\n";
 
     cout << "# CASE 6: Non absolute path | different directory #" << endl;
-    path1 = "./passwords.txt";
-    path2 = "./../private/pasword.txt";
+    path1 = "./password.txt";
+    path2 = "./../private/password.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are not homographs\n\n";
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are not homographs\n\n";
 
     cout << "# CASE 7: Invalid Input #" << endl;
-    path1 = "./C:/users/home/secret.password.txt";
+    path1 = "./C:/users/home/secret/password.txt";
     path2 = "./username.txt";
     cout << "   path 1: " << path1 << endl;
     cout << "   path 2: " << path2 << endl;
-    cout << "   > The paths are not homographs\n\n";
-
+    runHomographFunction(path1, path2, current_path);
+    cout << "Expected: The paths are not homographs\n\n";
 }
 
 /************************
@@ -225,7 +233,7 @@ void displayMenu()
     cout << "|     Lab 05: Homographs     |\n";
     cout << "|----------------------------|\n";
     cout << "|  (1) Run Test Cases        |\n";
-    cout << "|  (2) Manually Excute Test  |\n";
+    cout << "|  (2) Manually Execute Test |\n";
     cout << "|  (3) Quit Program          |\n";
     cout << " ----------------------------\n";
 }
