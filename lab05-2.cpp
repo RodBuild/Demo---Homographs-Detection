@@ -78,7 +78,27 @@ vector<string> canonicalize(const std::string p, const std::string base_path)
             GOOD: C:/User/Rodri/Test    */
     if (path.length() > 1 && (path[0] == DRIVES[0] || path[0] == DRIVES[1]) && path[1] == ':')
     {
-        vbase_path = vectorizeString(path);
+        vgiven_path = vectorizeString(path);
+        // loop through path and look for "../", "./" -> to create a path
+        for (int i = 0; i < vgiven_path.size(); i++) {
+            if (vgiven_path[i] == SINGLE_DOT) {
+                // DO NOTHING
+            }
+            else if (vgiven_path[i] == DOUBLE_DOT) {
+                // if path is empty and we try to pop
+                // CASE: C:/ -> " " -> ERROR
+                if (vbase_path.empty()) {
+                    vbase_path.push_back("WRONG_PATH");
+                    break;
+                }
+                else
+                    vbase_path.pop_back();
+            }
+            else {
+                vbase_path.push_back(vgiven_path[i]);
+            }
+        }
+        
         // return vbase_path;
 
     }
